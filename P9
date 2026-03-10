@@ -1,0 +1,37 @@
+Part 1 : R1 & R3
+Step 1: 
+
+show version  - security = None in table 
+license boot module c1900 technology-package securityk9 
+copy run strat 
+reload
+
+Step 2:
+
+access-list 110 permit ip 192.168.1.0 0.0.0.255 192.168.3.0 0.0.0.255 ### change for R3.. 1 = 3 & 3 = 1
+
+Step 3 :
+
+crypto isakmp policy 10
+encryption aes 256
+authentication pre-share
+group 5
+exit
+crypto isakmp key vpnpa55 address 10.2.2.2  ### 10.1.1.2 for R3
+
+Step 4 : 
+
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+crypto map VPN-MAP 10 ipsec-isakmp
+description VPN connection to R3  ### R1
+set peer 10.2.2.2	### 10.1.1.2 for R3
+set transform-set VPN-SET
+match address 110
+exit
+
+Step 5 : 
+
+int s0/1/0     ### s0/1/1
+crypto map VPN-MAP
+
+### status is ON ### show crypto ipsec sa
