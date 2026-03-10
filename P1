@@ -1,0 +1,27 @@
+Step 1 : all routers 
+
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 1
+
+Step 2 : MD5 all routers
+
+router ospf 1
+area 0 authentication message-digest 
+
+int se0/1/0
+ip ospf message-digest-key 1 md5 MD5pa55 
+
+Step 3 : NTP all routers
+
+ntp server 192.168.1.5
+ntp update calendar
+ntp authenticate 
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+
+verify : show clock or show ntp status
+
+Step 4 : Syslog all router 
+
+logging host 192.168.1.6
+show logging
