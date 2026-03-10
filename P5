@@ -1,0 +1,64 @@
+Step 1 : R2 
+
+interface loopback 1
+ip address 192.168.2.1 255.255.255.0
+exit
+
+step 2 : 
+
+RIP -> 192.168.2.0
+
+step 3 : all routers
+
+ip domain-name ccnasecurity.com
+username Admin1 privilege 15 secret cisco1
+line vty 0 4
+login local 
+transport input ssh
+exit
+crypto key generate rsa -> 1024
+#show ip ssh
+
+Step 4 : R2
+
+enable password level 15 cisco2
+
+Step 5 : 
+
+PCA cmd : ssh -l Admin2 10.1.1.2
+
+Step 6 : R3
+
+show version # None
+license boot module c1900 technology-package securityk9
+copy run start
+reload
+show version # securityk9
+
+zone security IN-ZONE
+exit
+zone security OUT-ZONE
+exit
+access-list 101 permit ip 192.168.3.0 0.0.0.255 any
+class-map type inspect match-all IN-NET-CLASS-MAP
+match access-group 101
+exit
+policy-map type inspect IN-2-OUT-PMAP
+class type inspect IN-NET-CLASS-MAP
+inspect
+exit
+exit
+zone-pair security IN-2-OUT-ZPAIR source IN-ZONE destination OUT-ZONE
+service-policy type inspect IN-2-OUT-PMAP
+exit
+
+int g0/0 
+zone-member security IN-ZONE
+exit
+int se0/1/1
+zone-member security OUT-ZONE
+
+ping PC-C to PC-A success
+PC-C cmd : ssh -l Admin2 10.1.1.2 or 10.2.2.2
+PC-C Web : 192.168.1.3
+ #show policy-map type inspect zone-pair sessions
